@@ -11,7 +11,6 @@ class AnaKategoriHucresi: UITableViewCell {
 
     
     
-    
     @IBOutlet weak var etiket: UILabel!
     
     
@@ -26,4 +25,6 @@ class AnaKategoriHucresi: UITableViewCell {
         // Configure the view for the selected state
     }
 
+    
 }
+

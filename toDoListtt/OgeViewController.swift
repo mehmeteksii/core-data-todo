@@ -9,8 +9,8 @@ import UIKit
 import CoreData
 
 class OgeViewController: UIViewController,UITableViewDataSource,UITableViewDelegate {
-    
-    
+    var selectedOgeler: Set<Oge> = []
+
 
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
@@ -27,6 +27,10 @@ class OgeViewController: UIViewController,UITableViewDataSource,UITableViewDeleg
         benimTableView.delegate = self
         benimTableView.dataSource = self
         verileriGetir()
+        yükleIşaretlemeDurumu()
+        
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        benimTableView.addGestureRecognizer(longPressGesture)
         // Do any additional setup after loading the view.
     }
     
@@ -40,7 +44,24 @@ class OgeViewController: UIViewController,UITableViewDataSource,UITableViewDeleg
         // Pass the selected object to the new view controller.
     }
     */
+    func yükleIşaretlemeDurumu() {
+        if let işaretlenenOgeIDs = UserDefaults.standard.array(forKey: "işaretlenenOgeIDs") as? [String] {
+            selectedOgeler = Set<Oge>()
+            for işaretlenenID in işaretlenenOgeIDs {
+                if let uri = URL(string: işaretlenenID), let managedObjectID = context.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: uri), let işaretlenenOge = try? context.existingObject(with: managedObjectID) as? Oge {
+                    selectedOgeler.insert(işaretlenenOge)
+                }
+            }
+        }
+    }
+
     
+    func kaydetIşaretlemeDurumu() {
+        let işaretlenenOgeIDs = selectedOgeler.map { $0.objectID.uriRepresentation().absoluteString }
+        UserDefaults.standard.set(işaretlenenOgeIDs, forKey: "işaretlenenOgeIDs")
+        UserDefaults.standard.synchronize()
+    }
+
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return ogeListesi.count
@@ -49,7 +70,19 @@ class OgeViewController: UIViewController,UITableViewDataSource,UITableViewDeleg
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let hucre = tableView.dequeueReusableCell(withIdentifier: ogeHucreID) as! OgeHucresi
         hucre.etiket.text = ogeListesi[indexPath.row].isim
+        
+        if selectedOgeler.contains(ogeListesi[indexPath.row]) {
+                hucre.accessoryType = .checkmark
+            } else {
+                hucre.accessoryType = .none
+            }
+        
         return hucre
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -59,6 +92,7 @@ class OgeViewController: UIViewController,UITableViewDataSource,UITableViewDeleg
             self.ogeListesi.remove(at: indexPath.row)
             self.benimTableView.reloadData()
 
+            self.verileriKaydet()
             self.verileriGetir()
         }
         
@@ -117,6 +151,8 @@ class OgeViewController: UIViewController,UITableViewDataSource,UITableViewDeleg
                 self.ogeListesi.append(yeniOge)
                 
                 self.verileriKaydet()
+                self.verileriGetir()
+
             }
             
         }
@@ -150,5 +186,23 @@ class OgeViewController: UIViewController,UITableViewDataSource,UITableViewDeleg
             print(error.localizedDescription)
         }
     }
+    
+    @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        if gestureRecognizer.state == .began {
+            let touchPoint = gestureRecognizer.location(in: benimTableView)
+            if let indexPath = benimTableView.indexPathForRow(at: touchPoint) {
+                let selectedOge = ogeListesi[indexPath.row]
+                // Basılı tutulan hücreyi işaretleme listesine ekleyin veya kaldırın
+                if selectedOgeler.contains(selectedOge) {
+                    selectedOgeler.remove(selectedOge)
+                } else {
+                    selectedOgeler.insert(selectedOge)
+                }
+                benimTableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+        }
+        kaydetIşaretlemeDurumu()
+    }
+    
 }
 

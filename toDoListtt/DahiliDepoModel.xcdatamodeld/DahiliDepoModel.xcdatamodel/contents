@@ -2,7 +2,7 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21513" systemVersion="21G115" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Kategori" representedClassName="Kategori" syncable="YES" codeGenerationType="class">
         <attribute name="isim" attributeType="String"/>
-        <relationship name="altOge" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Oge" inverseName="ustKategori" inverseEntity="Oge"/>
+        <relationship name="altOge" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Oge" inverseName="ustKategori" inverseEntity="Oge"/>
     </entity>
     <entity name="Oge" representedClassName="Oge" syncable="YES" codeGenerationType="class">
         <attribute name="isim" attributeType="String"/>
