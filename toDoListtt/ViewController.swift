@@ -14,7 +14,6 @@ import CoreData
 class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSource {
     var selectedKategoriler: Set<Kategori> = []
 
-    
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     let kategoriHucreID = "KategoriHucresiID"
@@ -78,6 +77,18 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
 
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "ogeViewControllerSegue" {
+            if let indexPath = benimTableViewim.indexPathForSelectedRow {
+                let selectedKategori = kategoriListesi[indexPath.row]
+                if let ogeViewController = segue.destination as? OgeViewController {
+                    ogeViewController.ustKategori = selectedKategori
+                }
+            }
+        }
+    }
+
+    
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Sil") { (action, view, completion) in
             // Silme işlemini burada gerçekleştirin
@@ -114,9 +125,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let secilenKategori = kategoriListesi[indexPath.row]
-                
                 let hedefVC = storyboard?.instantiateViewController(withIdentifier: "ogeViewControllerID") as! OgeViewController
-                
                 hedefVC.ustKategori = secilenKategori
                 
                 self.show(hedefVC, sender: self)
@@ -129,7 +138,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     func düzenleAlertGoster(hedefObje: Kategori){
         var yaziAlanı = UITextField()
         
-        let birAlert = UIAlertController(title: "Yeni degeri giriniz", message: "", preferredStyle: .alert)
+        let birAlert = UIAlertController(title: "Lütfen yeni görevinizi girin.", message: "", preferredStyle: .alert)
         let tamam = UIAlertAction(title: "Tamam", style: .default) { (_)  in
             hedefObje.isim = yaziAlanı.text
             self.verileriKaydet()
@@ -150,7 +159,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     @IBAction func ekleButonuTiklandi(_ sender: UIBarButtonItem) {
         var yazıGirisAlani = UITextField()
         
-        let uyarıView = UIAlertController(title: "", message: "Eklemek istediğinix veriyi giriniz", preferredStyle: .alert)
+        let uyarıView = UIAlertController(title: "", message: "Lütfen eklemek istediğiniz görevi girin.", preferredStyle: .alert)
         
         let tamamAction = UIAlertAction(title: "Tamam", style: .default) { birAction in
             

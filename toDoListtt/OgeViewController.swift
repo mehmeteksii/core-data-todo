@@ -10,8 +10,9 @@ import CoreData
 
 class OgeViewController: UIViewController,UITableViewDataSource,UITableViewDelegate {
     var selectedOgeler: Set<Oge> = []
+    var ogeSayisi: Int = 0
 
-
+    
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     var ogeListesi = [Oge]()
@@ -28,6 +29,12 @@ class OgeViewController: UIViewController,UITableViewDataSource,UITableViewDeleg
         benimTableView.dataSource = self
         verileriGetir()
         yükleIşaretlemeDurumu()
+        
+        if let ustKategori = self.ustKategori {
+               title = ustKategori.isim
+           } else {
+               title = "Başlık Yok"
+           }
         
         let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         benimTableView.addGestureRecognizer(longPressGesture)
@@ -117,7 +124,7 @@ class OgeViewController: UIViewController,UITableViewDataSource,UITableViewDeleg
     func düzenleAlertGoster(hedefObje: Oge){
         var yaziAlanı = UITextField()
         
-        let birAlert = UIAlertController(title: "Yeni degeri giriniz", message: "", preferredStyle: .alert)
+        let birAlert = UIAlertController(title: "Lütfen yeni görevinizi girin", message: "", preferredStyle: .alert)
         let tamam = UIAlertAction(title: "Tamam", style: .default) { (_)  in
             hedefObje.isim = yaziAlanı.text
             self.verileriKaydet()
@@ -138,7 +145,7 @@ class OgeViewController: UIViewController,UITableViewDataSource,UITableViewDeleg
     @IBAction func ekleButonuTiklandi(_ sender: UIBarButtonItem) {
         var yazıGirisAlani = UITextField()
         
-        let uyarıView = UIAlertController(title: "", message: "Eklemek istediğinix veriyi giriniz", preferredStyle: .alert)
+        let uyarıView = UIAlertController(title: "", message: "Lütfen eklemek istediğiniz görevi girin.", preferredStyle: .alert)
         
         let tamamAction = UIAlertAction(title: "Tamam", style: .default) { birAction in
             
@@ -182,6 +189,7 @@ class OgeViewController: UIViewController,UITableViewDataSource,UITableViewDeleg
         talep.predicate = birFiltre
         do{
            ogeListesi = try context.fetch(talep)
+            ogeSayisi = ogeListesi.count
         }catch{
             print(error.localizedDescription)
         }
